@@ -8,12 +8,13 @@ Measure distance with ESP32-S2 mini board / ESP32 POE and VL53L0X sensor
     
 [Why licensed under EUPL-1.2: it is compatible to GPL and compatible to EU-rights and regulations](https://joinup.ec.europa.eu/collection/eupl/join-eupl-licensing-community)    
 
-[[Based on ESP32_ABL - Thank you!](https://github.com/raibisch/ESP32_ABL)
+[Based on ESP32_ABL - Thank you!](https://github.com/raibisch/ESP32_ABL)
 
 ## Functions in Web-Interface
 
 - INDEX-Page: display the last measured distance 
 - CONFIG-DATA: set and store parameter and WiFi-credentials
+- EVENT-LOG: Serial debug logging
 - UPDATE: over-the-air (Wifi) Software update
 - INFO: Version, Build, Temp(ESP-intern), IP, Timeout, Charge-Cnt, RSSI
 
