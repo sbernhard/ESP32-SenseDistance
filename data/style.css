@@ -1,0 +1,251 @@
+html {
+  font-family: monospace;
+  display: inline-block;
+  margin: auto;
+  text-align: center;
+  font-size:0.8rem;
+  min-width:320px;
+  place-items: center;
+}
+h1{color: blue;padding: 15px;}
+h3{color:blue;padding:10px;}
+body{ font-weight: bold;}
+
+.button, .buttonblue, .buttongreen, .buttonred, .buttonyellow, .buttonlink {
+  display: inline-block;
+  width: 75%;
+  max-width: 320px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 2rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* style range */
+input[type=range] {
+  width: 100%;
+  margin-left: 0;
+}
+
+/* style datalist */
+input[type=range] + datalist {
+  display: flex;
+  margin-top: -4px;
+ font-size: medium;
+ text-align: center;
+}
+input[type=range] + datalist option {
+  display: inline-block;
+  width: calc((100% - 12px) / (var(--list-length) - 1));
+}
+input[type=range] + datalist option:first-child {
+
+  width: calc((100% - 12px) / ((var(--list-length) - 1) * 2) + 6px);
+}
+input[type=range] + datalist option:last-child {
+
+  width: calc((100% - 12px) / ((var(--list-length) - 1) * 2) + 6px);
+  text-align: right;
+}
+
+.slider {
+  appearance: none;
+  height: 25px;
+  background: #092195;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: white;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: white;
+  cursor: pointer;
+}
+
+.buttongreen {
+  background-color: darkgreen;
+}
+
+.buttonred {
+  background-color: #f10b0b;
+}
+
+.buttonblue {
+  background-color: #36afbf;
+}
+
+.buttonyellow {
+  background-color: #f1d104;
+  visibility: hidden;
+}
+
+.buttonlink {
+  background-color: #008CBA;
+}
+
+.table {
+  width: 33%;
+}
+
+.container {
+  display: inline-block;
+  width: 80%;
+  border: 3px solid red;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+a:link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+input {
+  margin: 5px;
+  width: 120px;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+th {
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0rem;
+  /*border: 3px solid gray; */
+}
+
+td {
+  background-color: white;
+  color: black;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0rem;
+  border: 3px solid gray;
+}
+
+textarea {
+  width:80%;
+  max-width: 400px;
+  height:25em;
+}
+
+.myblink {
+  width: 33%;
+  animation: blinkingBackground 2s infinite;
+}
+.mynoblink {
+  width: 30%;
+  animation: none;
+}
+
+.outerring {
+  display: inline-block;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  position: relative;
+  background-color: black;
+  margin: 10px;
+  cursor:pointer;
+}
+
+.outerring_blink {
+  display: inline-block;
+  width: 250px;
+  height:250px;
+  border-radius: 50%;
+  position: relative;
+  background-color: black;
+  margin: 10px;
+  cursor:pointer;
+  animation: blinkingBackground 2s infinite;
+  }
+
+.innerring {
+  position: absolute;
+  width: 85%;
+  height: 85%;
+  border-radius: 50%;
+  background-color: #ffffff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.1s ease-out;
+}
+
+.ringtext_value {
+  font-size: 2.7rem;
+  position: relative;
+  top: 38%;
+  text-align: center;
+}
+
+.ringtext_unit {
+  position: relative;
+  top: 38%;
+  text-align: center;
+}
+
+.ringtext_time {
+  position: relative;
+  top: 45%;
+  text-align: center;
+}
+
+.ringtext_status {
+  position: relative;
+  top: 51%;
+  text-align: center;
+}
+
+.outer:hover .inner {
+  width: 80%;
+  height: 80%;
+
+}
+
+.image-btn{
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 28%;
+  max-width: 120px;
+  padding: 25px;
+  text-align: center;
+}
+
+.image-btn img{
+  display: block; /* to remove extra space below image */
+}
+
+@keyframes blinkingBackground {
+  40% {
+    opacity: 0.4;
+  }
+}

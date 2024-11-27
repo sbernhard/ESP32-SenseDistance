@@ -1,0 +1,26 @@
+
+;copy or rename this file to config.txt
+;edit WIFI credentials
+
+varDEVICE_s_Name=SenseDistance;
+
+varDEVICE_i_Interval=1000;
+varDEVICE_i_RestartAfterFailedMeasurements=10;
+
+varWIFI_s_Mode=AP;
+varWIFI_s_Password=;
+varWIFI_s_SSID=;
+
+;varWIFI_s_Mode=STA;
+;varWIFI_s_Password=mypassword;
+;varWIFI_s_SSID=myssid;
+
+;for Version compiled with MQTT_ENABLE
+;=====================================
+varMQTT_i_PORT =1883;
+varMQTT_s_HOST =192.168.1.2;
+varMQTT_s_USER =;
+varMQTT_s_PASS_=;
+varMQTT_s_TOPIC_OUT    =sensedistance/out/;
+varMQTT_s_PAYLOAD_OUT  ={"distance":"&d"};
+

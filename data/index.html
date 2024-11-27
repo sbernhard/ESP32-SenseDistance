@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>%DEVICEID%</title>
+        <meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <meta charset="UTF-8">
+        <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+        <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+        <link rel="icon" sizes="384x384" href="android-chrome-384x384.png">
+        <link rel="icon" href="favicon.ico">
+        <link rel="manifest" href="manifest.json">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#ffffff">
+    </head>
+    <body>
+      <img src="android-chrome-192x192.png" alt="SenseDistanceLogo" height="40">
+      <h2>%DEVICEID%</h2>
+      <span>Measured distance:</span>
+      <span class="status" id="DISTANCE">--</span>
+      <br />
+
+      <button type="button" class="image-btn" onclick="window.location.href='log.html'"><img src="file-list.png">Log</button>
+      <button type="button" class="image-btn" onclick="window.location.href='setup.html'"><img src="settings.png">Setup</button>
+    </body>
+
+    <script type="text/javascript">
+       function reqListener () {
+         var myResponse = this.responseText;
+         var myArray = myResponse.split(",");
+         //console.log(myArray);
+
+         document.getElementById('DISTANCE').innerHTML = myArray[0];
+       }
+
+       var oReq = new XMLHttpRequest();
+       oReq.addEventListener("load", reqListener);
+       setInterval(function() {
+         oReq.open("GET", "/fetch");
+         oReq.send();
+       }, 2000);
+    </script>
+</html>
