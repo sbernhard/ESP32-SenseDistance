@@ -70,6 +70,11 @@ for the ESP32-S2 mini board I supply the actual firmware-version
   to connect to your home-route navigate to "Setup" --> "Config-Data" and change:
 
 ```config
+varDEVICE_s_Name=SenseDistance;
+varDEVICE_i_Interval=1000;
+var_DEVICE_i_RestartAfterFailedMeasurements=10;
+varDEVICE_i_MeasurementTimingBudget=33;
+varDEVICE_i_LongRange=0;
 varWIFI_s_Mode=STA; 
 varWIFI_s_Password=mypassword;
 varWIFI_s_SSID=myrouter;

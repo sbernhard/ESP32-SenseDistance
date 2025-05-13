@@ -7,6 +7,13 @@ varDEVICE_s_Name=SenseDistance;
 varDEVICE_i_Interval=1000;
 varDEVICE_i_RestartAfterFailedMeasurements=10;
 
+; Measurement Timing (in ms)
+; Default: 33, High Speed: 20 ms, High Accuracy: 200ms
+varDEVICE_i_MeasurementTimingBudget=33;
+
+; Long Range Mode. Default: 0 (disabled). Enabled: 1
+varDEVICE_i_LongRange=0;
+
 varWIFI_s_Mode=AP;
 varWIFI_s_Password=;
 varWIFI_s_SSID=;

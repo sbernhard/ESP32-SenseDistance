@@ -114,7 +114,9 @@ class SenseDistance_FileVarStore : public FileVarStore
  public:
   // Device-Parameter
   String varDEVICE_s_Name = "SenseDistance";
-  uint16_t varDEVICE_i_Interval = 30000;
+  uint16_t varDEVICE_i_Interval = 30000; // in milliseconds
+  uint16_t varDEVICE_i_MeasurementTimingBudget = 33; // in ms
+  uint16_t varDEVICE_i_LongRange=0; // 0=normal, 1=long range
   uint16_t varDEVICE_i_RestartAfterFailedMeasurements = 10;
 
   // Wifi-Parameter
@@ -139,6 +141,8 @@ class SenseDistance_FileVarStore : public FileVarStore
     varWIFI_s_Password   = GetVarString(GETVARNAME(varWIFI_s_Password));
     varWIFI_s_SSID       = GetVarString(GETVARNAME(varWIFI_s_SSID));
     varDEVICE_i_Interval = GetVarInt(GETVARNAME(varDEVICE_i_Interval),30000);
+    varDEVICE_i_MeasurementTimingBudget = GetVarInt(GETVARNAME(varDEVICE_i_MeasurementTimingBudget),33);
+    varDEVICE_i_LongRange = GetVarInt(GETVARNAME(varDEVICE_i_LongRange),0);
     varDEVICE_i_RestartAfterFailedMeasurements = GetVarInt(GETVARNAME(varDEVICE_i_RestartAfterFailedMeasurements),10);
 
 #ifdef MQTT_ENABLE
@@ -360,7 +364,9 @@ String setHtmlVar(const String& var)
       "\nIP-Addr    :" + SYS_IP +
       "\nTimeout-Cnt:" + SYS_TimeoutCount +
       "\nRestart-Cnt:" + String(SYS_RestartCount) +
-      "\nRSSI       :" + String(WiFi.RSSI());
+      "\nRSSI       :" + String(WiFi.RSSI()) +
+      "\nMeasure-Timing: " + String(varStore.varDEVICE_i_MeasurementTimingBudget) +
+      "\nLongRange: " + String(varStore.varDEVICE_i_LongRange);
   }
   else if (var == "ExampleValue")
   {
@@ -565,21 +571,20 @@ void setup()
     while (1) {}
   }
 
-#if defined LONG_RANGE
-  // lower the return signal rate limit (default is 0.25 MCPS)
-  sensor.setSignalRateLimit(0.1);
-  // increase laser pulse periods (defaults are 14 and 10 PCLKs)
-  sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodPreRange, 18);
-  sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodFinalRange, 14);
-#endif
+  // should it use LongRange mode?
+  if (varStore.varDEVICE_i_LongRange >= 1)
+  {
+    debug_println("Using Long Range mode");
+    // lower the return signal rate limit (default is 0.25 MCPS)
+    sensor.setSignalRateLimit(0.1);
+    // increase laser pulse periods (defaults are 14 and 10 PCLKs)
+    sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodPreRange, 18);
+    sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodFinalRange, 14);
+  }
 
-#if defined HIGH_SPEED
-  // reduce timing budget to 20 ms (default is about 33 ms)
-  sensor.setMeasurementTimingBudget(20000);
-#elif defined HIGH_ACCURACY
-  // increase timing budget to 200 ms
-  sensor.setMeasurementTimingBudget(200000);
-#endif
+  // Set the measurement timing budget in microseconds
+  debug_println("Setting measurement timing budget to " + String(varStore.varDEVICE_i_MeasurementTimingBudget) + "ms");
+  sensor.setMeasurementTimingBudget(varStore.varDEVICE_i_MeasurementTimingBudget * 1000);
 
   delay(800);
   debug_begin(115200);
