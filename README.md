@@ -33,11 +33,6 @@ Receive:
 decoded:
 `<distance [mm]>`
 
-## Download and Installation
-
-* To download click the DOWNLOAD ZIP button, rename the uncompressed folder 'ESP32_SenseDistance'
-...or clone it with git 
-
 ### PlatformIO and Arduino-IDE
 
 Project was build and testet with PlatformIO.
