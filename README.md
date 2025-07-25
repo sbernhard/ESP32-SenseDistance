@@ -1,6 +1,11 @@
 # SenseDistance
 
-Measure distance with ESP32-S2 mini board / ESP32 POE and VL53L0X sensor
+Measure distance with ESP32-S2 mini board / ESP32 POE 
+
+Supported distance sensors:
+
+- VL53L0X
+- DFRobot URM09
 
 ## Licence    
     
@@ -16,7 +21,7 @@ Measure distance with ESP32-S2 mini board / ESP32 POE and VL53L0X sensor
 - CONFIG-DATA: set and store parameter and WiFi-credentials
 - EVENT-LOG: Serial debug logging
 - UPDATE: over-the-air (Wifi) Software update
-- INFO: Version, Build, Temp(ESP-intern), IP, Timeout, Charge-Cnt, RSSI
+- INFO: Version, Build, Temp(ESP-intern), IP, Timeout, Charge-Cnt, RSSI, used sensor (VL53L0X or URM09)
 
 ### Fetch actual Values and State
 
@@ -35,10 +40,22 @@ decoded:
 
 ### PlatformIO and Arduino-IDE
 
-Projekt was build and testet with PlatformIO.
+Project was build and testet with PlatformIO.
 
 Take care to upload the 'data' folder to the SPIFFS filesystem 
 see: https://randomnerdtutorials.com/esp32-vs-code-platformio-spiffs/
+
+Build the project with PlatformIO or Arduino-IDE.
+
+To build with sensor VL53L0X on esp32-poe:
+```
+pio run -e esp32-poe-VL53L0X
+```
+
+To build with sensor URM09 on lolin_s2_mini:
+```
+pio run -e lolin_s2_mini_URM09
+```
 
 With the following two command you can create and upload the SPIFFS image:
 
@@ -73,9 +90,18 @@ for the ESP32-S2 mini board I supply the actual firmware-version
 varDEVICE_s_Name=SenseDistance;
 varDEVICE_i_Interval=1000;
 var_DEVICE_i_RestartAfterFailedMeasurements=10;
-varDEVICE_i_MeasurementTimingBudget=33;
-varDEVICE_i_LongRange=0;
 varWIFI_s_Mode=STA; 
 varWIFI_s_Password=mypassword;
 varWIFI_s_SSID=myrouter;
+```
+
+Additional configs for VL53L0X:
+```config
+varDEVICE_i_MeasurementTimingBudget=33;
+varDEVICE_i_LongRange=0;
+```
+
+Additional configs for URM09:
+```config
+varDEVICE_i_Range=0; // 0=150, 1=300, 2=500 Range
 ```

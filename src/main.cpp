@@ -6,6 +6,7 @@
 #include "math.h"
 #include <AsyncTCP.h>
 #include <VL53L0X.h>
+#include <DFRobot_URM09.h>
 #include <Wire.h>
 
 #ifdef USE_ETH_INSTEAD_WIFI
@@ -15,14 +16,6 @@
 #ifdef MQTT_ENABLE
 #include <MQTT.h>
 #endif
-
-// Uncomment this line to use long range mode. This
-// increases the sensitivity of the sensor and extends its
-// potential range, but increases the likelihood of getting
-// an inaccurate reading because of reflections from objects
-// other than the intended target. It works best in dark
-// conditions.
-//#define LONG_RANGE
 
 // now set in platformio.ini
 //#define DEBUG_PRINT 1    // SET TO 0 OUT TO REMOVE TRACES
@@ -78,7 +71,14 @@ static String SYS_Version = "V 1.0.0";
 static String SYS_CompileTime =  __DATE__;
 static String SYS_IP = "0.0.0.0";
 
+#ifdef USE_URM09
+DFRobot_URM09 sensor;
+#endif
+
+#ifdef USE_VL53L0X
 VL53L0X sensor;
+#endif
+
 uint16_t distance = 0;
 
 #ifdef MQTT_ENABLE
@@ -115,9 +115,16 @@ class SenseDistance_FileVarStore : public FileVarStore
   // Device-Parameter
   String varDEVICE_s_Name = "SenseDistance";
   uint16_t varDEVICE_i_Interval = 30000; // in milliseconds
+  uint16_t varDEVICE_i_RestartAfterFailedMeasurements = 10;
+
+#ifdef USE_VL53L0X
   uint16_t varDEVICE_i_MeasurementTimingBudget = 33; // in ms
   uint16_t varDEVICE_i_LongRange=0; // 0=normal, 1=long range
-  uint16_t varDEVICE_i_RestartAfterFailedMeasurements = 10;
+#endif
+
+#ifdef USE_URM09
+  uint16_t varDEVICE_i_Range=0; // 0=150, 1=300, 2=500
+#endif
 
   // Wifi-Parameter
   String varWIFI_s_Mode    = "STA"; // STA=client connect with Router,  AP=Access-Point-Mode (needs no router)
@@ -141,9 +148,16 @@ class SenseDistance_FileVarStore : public FileVarStore
     varWIFI_s_Password   = GetVarString(GETVARNAME(varWIFI_s_Password));
     varWIFI_s_SSID       = GetVarString(GETVARNAME(varWIFI_s_SSID));
     varDEVICE_i_Interval = GetVarInt(GETVARNAME(varDEVICE_i_Interval),30000);
+    varDEVICE_i_RestartAfterFailedMeasurements = GetVarInt(GETVARNAME(varDEVICE_i_RestartAfterFailedMeasurements),10);
+
+#ifdef USE_VL53L0X
     varDEVICE_i_MeasurementTimingBudget = GetVarInt(GETVARNAME(varDEVICE_i_MeasurementTimingBudget),33);
     varDEVICE_i_LongRange = GetVarInt(GETVARNAME(varDEVICE_i_LongRange),0);
-    varDEVICE_i_RestartAfterFailedMeasurements = GetVarInt(GETVARNAME(varDEVICE_i_RestartAfterFailedMeasurements),10);
+#endif // USE_VL53L0X
+
+#ifdef USE_URM09
+    varDEVICE_i_Range = GetVarInt(GETVARNAME(varDEVICE_i_Range),0);
+#endif
 
 #ifdef MQTT_ENABLE
     varMQTT_i_PORT       = GetVarInt(GETVARNAME(varMQTT_i_PORT),1883);
@@ -363,10 +377,18 @@ String setHtmlVar(const String& var)
       "\nTemp(C)    :" + temp +
       "\nIP-Addr    :" + SYS_IP +
       "\nTimeout-Cnt:" + SYS_TimeoutCount +
-      "\nRestart-Cnt:" + String(SYS_RestartCount) +
       "\nRSSI       :" + String(WiFi.RSSI()) +
+#ifdef USE_VL53L0X
+      "\nSensor     : VL53L0X" +
       "\nMeasure-Timing: " + String(varStore.varDEVICE_i_MeasurementTimingBudget) +
-      "\nLongRange: " + String(varStore.varDEVICE_i_LongRange);
+      "\nLongRange: " + String(varStore.varDEVICE_i_LongRange) +
+#endif // USE_VL53L0X
+#ifdef USE_URM09
+      "\nSensor     : URM09" +
+      "\nRange: " + String(varStore.varDEVICE_i_Range) +
+#endif
+      "\nRestart-Cnt:" + String(SYS_RestartCount);
+     ;
   }
   else if (var == "ExampleValue")
   {
@@ -552,18 +574,8 @@ void initSPIFFS()
 
 // ######################### Setup #############################################
 
-void setup()
-{
-  delay(800);
-
-  debug_println("Using GPIO "+ String(I2C_SDA_GPIO) + " (SDA) and " + String(I2C_SCL_GPIO) + " (SCL) for I2C");
-
-  Serial.begin(9600);
-  Wire.begin(I2C_SDA_GPIO, I2C_SCL_GPIO);
-
-  debug_println("Measure distance each " + String(varStore.varDEVICE_i_Interval) + "ms");
-  debug_println("Restart after " + String(varStore.varDEVICE_i_RestartAfterFailedMeasurements) + " failed measurements");
-
+#ifdef USE_VL53L0X
+void setup_sensor() {
   sensor.setTimeout(500);
   if (!sensor.init())
   {
@@ -585,6 +597,53 @@ void setup()
   // Set the measurement timing budget in microseconds
   debug_println("Setting measurement timing budget to " + String(varStore.varDEVICE_i_MeasurementTimingBudget) + "ms");
   sensor.setMeasurementTimingBudget(varStore.varDEVICE_i_MeasurementTimingBudget * 1000);
+}
+#endif // USE_VL53L0X
+
+#ifdef USE_URM09
+void setup_sensor() {
+   while(!sensor.begin()){
+    Serial.println("I2c device number error");
+    delay(1000);
+  }
+  /**
+   * The module is configured in automatic mode or passive
+   *  MEASURE_MODE_AUTOMATIC       automatic mode
+   *  MEASURE_MODE_PASSIVE         passive mode
+   * The measurement distance is set to 500,300,150
+   *  MEASURE_RANG_500             Ranging from 500
+   *  MEASURE_RANG_300             Ranging from 300
+   *  MEASURE_RANG_150             Ranging from 150
+  */
+  switch (varStore.varDEVICE_i_Range) {
+    case 2:
+      sensor.setModeRange(MEASURE_MODE_AUTOMATIC, MEASURE_RANG_500);
+      break;
+    case 1:
+      sensor.setModeRange(MEASURE_MODE_AUTOMATIC, MEASURE_RANG_300);
+      break;
+    case 0:
+    default:
+      sensor.setModeRange(MEASURE_MODE_AUTOMATIC, MEASURE_RANG_150);
+      break;
+  }
+  delay(100);
+}
+#endif // USE_URM09
+
+void setup()
+{
+  delay(800);
+
+  debug_println("Using GPIO "+ String(I2C_SDA_GPIO) + " (SDA) and " + String(I2C_SCL_GPIO) + " (SCL) for I2C");
+
+  Serial.begin(9600);
+  Wire.begin(I2C_SDA_GPIO, I2C_SCL_GPIO);
+
+  setup_sensor();
+
+  debug_println("Measure distance each " + String(varStore.varDEVICE_i_Interval) + "ms");
+  debug_println("Restart after " + String(varStore.varDEVICE_i_RestartAfterFailedMeasurements) + " failed measurements");
 
   delay(800);
   debug_begin(115200);
@@ -616,6 +675,30 @@ static unsigned long now = 0;
 static unsigned long last = 0;
 static unsigned long tmp_poll_time_ms = 0;
 static unsigned long previousMillis = 0;
+
+#ifdef USE_VL53L0X
+uint16_t getDistance() {
+  uint16_t dist;
+
+  dist = sensor.readRangeSingleMillimeters();
+  if (sensor.timeoutOccurred()) {
+    dist = 0;
+  }
+  return dist;
+}
+#endif // USE_VL53L0X
+
+#ifdef USE_URM09
+uint16_t getDistance() {
+  uint16_t dist;
+
+  dist = sensor.getDistance();
+  dist = dist * 10; // convert cm to mm
+
+  return dist;
+}
+#endif
+
 void loop()
 {
   now = millis();
@@ -625,10 +708,10 @@ void loop()
     // Update the last run time
     previousMillis = now;
 
-    distance = sensor.readRangeSingleMillimeters();
-    if (sensor.timeoutOccurred()) {
-      AsyncWebLog.println("Sensor timeout.");
-      debug_print("Sensor timeout.");
+    distance = getDistance();
+    if (distance == 0) {
+      AsyncWebLog.println("Sensor timeout / failure.");
+      debug_print("Sensor timeout / failure.");
       last++;
     } else {
       last = 0;
