@@ -7,6 +7,12 @@ Supported distance sensors:
 - VL53L0X
 - DFRobot URM09
 
+## Usage
+
+- Measure salt level of water softener systems
+- Rainwater tank level measurement
+- Package or object detection
+
 ## Licence    
     
 [Licensed under the European Union Public License (EUPL)-1.2-or-later](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12)    
